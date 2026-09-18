@@ -138,6 +138,65 @@ What survives is specific and checkable:
 Those are real single-source dependencies, invisible in European or US import statistics
 because they sit one link away. What does not hold is the general law built on them.
 
+### 4. The network has a real phase transition, sharp and abrupt, same shape as the published cobalt cascade study
+
+Wu Chen's group (Ouyang et al., *Environ. Sci. Ecotechnol.* 29 (2026) 100654) run a linear-threshold
+cascade across six real cobalt life-cycle stages, mining through recycling, to show disruptions
+propagate as "abrupt, nonlinear failures." That six-stage breakdown needs trade-linked material flow
+data this project does not have. What it does have is one real trade layer, so `shock_propagation.py`
+implements the same core mechanism, a country collapses once the disruption it absorbs from already-
+collapsed partners exceeds a threshold share (`beta`) of its own trade, then passes disruption on to
+its own neighbours, on the real 2023 network already built above.
+
+Sweeping `beta` from a shock at Myanmar or China in rare earth compounds:
+
+| beta | Myanmar | China |
+|---|---|---|
+| 0.05 - 0.30 | 100% collapse | 100% collapse |
+| 0.50 | 37.4% collapse | 37.4% collapse |
+| 0.70 | 0% collapse | 16.3% collapse |
+| 0.90 | 0% collapse | 5.7% collapse |
+
+The transition from total collapse to near-immunity happens inside a narrow band, not gradually,
+the same "robust-yet-fragile" shape the published study reports, even without its six-layer
+structure. Below the transition, essentially any shock at either a supply chokepoint (Myanmar) or a
+demand/processing hub (China) takes down the entire network; above it, the network absorbs almost
+everything.
+
+**Where this honestly diverges from the published result.** Iterating a shock from every country in
+turn (the avalanche network) gives 777 links at beta=0.2 against the underlying trade network's 929,
+0.8x as dense, not the ~4x denser finding the cobalt paper reports. The likely reason is structural,
+not a modelling error: their extra density comes specifically from indirect paths that cross life-
+cycle stages, a shock reaching a country through refining that it could never reach through trade
+alone. A single trade layer has no such cross-stage route to travel through, so it cannot produce
+that same extra density, whatever threshold is chosen. This is a real, checkable limit of using one
+layer rather than six, not a discrepancy to explain away.
+
+**Lithium shows the same pattern, and it lines up with Wu Chen's own separate lithium paper, not
+just the cobalt one.** Running the identical cascade on lithium carbonate (HS 2836) and lithium
+hydroxide (HS 2825) instead of rare earths or cobalt:
+
+| beta | Chile (lithium carbonate) | China (lithium carbonate) |
+|---|---|---|
+| 0.05 - 0.30 | 100% collapse | 100% collapse |
+| 0.50 | 18.5% collapse | 18.5% collapse |
+| 0.70 | 0.5% collapse | 7.9% collapse |
+| 0.90 | 0.5% collapse | 5.1% collapse |
+
+Chile shocks the network exactly as hard as China does below the transition, in both lithium codes,
+not just one, and both collapse the entire 216-country network at beta &le; 0.3. This is the same
+"robust-yet-fragile" shape reported for cobalt above, and it is also the same shape her actual 2024
+lithium paper (Ouyang, Liu, **Chen W.**, Wang, Sun, He, Liu, *Environ. Sci. Technol.* 58 (2024)
+22135-22147) reports for the lithium network specifically: robust to random shocks, fragile to a
+targeted one at the right node. The concentration finding from earlier in this README (China's
+lithium carbonate imports 87% from Chile) is exactly the single-supplier dependency this cascade
+result explains mechanically: Chile is not just concentrated, it is a node whose removal the network
+cannot structurally absorb below a fairly high failure threshold.
+
+```
+src/shock_propagation.py   the cascade, systemic fragility, and avalanche network
+```
+
 ## Layout
 
 ```
