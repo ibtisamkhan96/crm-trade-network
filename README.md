@@ -9,8 +9,9 @@ is written up rather than removed.
 
 ## Data
 
-**UN Comtrade**, 2023, via the free public API. 528 cached queries: 8 commodity codes ×
-33 reporting countries × both directions. 6,372 import rows and 8,457 export rows.
+**UN Comtrade**, 2023, via the free public API. 528 cached queries for the original eight
+commodity codes (33 reporting countries × both directions; 6,372 import rows and 8,457 export
+rows), plus 132 for the two six-digit lithium codes added later.
 
 Codes are chosen so each is a distinct point in a supply chain rather than a vague
 material group:
@@ -25,6 +26,15 @@ material group:
 | 7403 | Refined copper |
 | 7502 | Unwrought nickel |
 | 8105 | Cobalt mattes and articles |
+| 283691 | Lithium carbonates (six-digit, added later) |
+| 282520 | Lithium oxide and hydroxide (six-digit, added later) |
+
+The two four-digit lithium codes are dominated by other chemicals: by weight, HS 2836 is mostly
+soda ash, and it traded 23.5 million tonnes in 2023, 25-30 times world lithium carbonate output.
+By value it is mostly lithium carbonate, so the lithium figures in sections 1-3 below, which use
+the four-digit codes, point the right way but understate how concentrated lithium carbonate trade
+is: on the six-digit code Chile exports 79% of it and the pooled HHI is 0.73. Section 4 uses the
+six-digit codes, and so does mfa-engine.
 
 ### Three data problems that change the answer
 
@@ -140,7 +150,7 @@ because they sit one link away. What does not hold is the general law built on t
 
 ### 4. The network has a real phase transition, sharp and abrupt, same shape as the published cobalt cascade study
 
-Wu Chen's group (Ouyang et al., *Environ. Sci. Ecotechnol.* 29 (2026) 100654) run a linear-threshold
+Ouyang et al. (*Environ. Sci. Ecotechnol.* 29 (2026) 100654) run a linear-threshold
 cascade across six real cobalt life-cycle stages, mining through recycling, to show disruptions
 propagate as "abrupt, nonlinear failures." That six-stage breakdown needs trade-linked material flow
 data this project does not have. What it does have is one real trade layer, so `shock_propagation.py`
@@ -172,26 +182,31 @@ alone. A single trade layer has no such cross-stage route to travel through, so 
 that same extra density, whatever threshold is chosen. This is a real, checkable limit of using one
 layer rather than six, not a discrepancy to explain away.
 
-**Lithium shows the same pattern, and it lines up with Wu Chen's own separate lithium paper, not
-just the cobalt one.** Running the identical cascade on lithium carbonate (HS 2836) and lithium
-hydroxide (HS 2825) instead of rare earths or cobalt:
+**Lithium shows the same pattern, and it lines up with the same group's separate lithium paper,
+not just the cobalt one.** Running the identical cascade on the six-digit lithium codes, lithium
+carbonate (HS 2836.91, $11.5bn of trade, 107 countries) and lithium hydroxide (HS 2825.20, $9.1bn,
+97 countries):
 
-| beta | Chile (lithium carbonate) | China (lithium carbonate) |
-|---|---|---|
-| 0.05 - 0.30 | 100% collapse | 100% collapse |
-| 0.50 | 18.5% collapse | 18.5% collapse |
-| 0.70 | 0.5% collapse | 7.9% collapse |
-| 0.90 | 0.5% collapse | 5.1% collapse |
+| beta | Chile shock, carbonate | China shock, carbonate | China shock, hydroxide |
+|---|---|---|---|
+| 0.05 - 0.50 | 100% collapse | 100% collapse | 100% collapse |
+| 0.60 | 97.2% collapse | 97.2% collapse | 100% collapse |
+| 0.70 | 26.4% collapse | 11.3% collapse | 54.2% collapse |
+| 0.90 | 2.8% collapse | 8.5% collapse | 8.3% collapse |
 
-Chile shocks the network exactly as hard as China does below the transition, in both lithium codes,
-not just one, and both collapse the entire 216-country network at beta &le; 0.3. This is the same
-"robust-yet-fragile" shape reported for cobalt above, and it is also the same shape her actual 2024
-lithium paper (Ouyang, Liu, **Chen W.**, Wang, Sun, He, Liu, *Environ. Sci. Technol.* 58 (2024)
+The two forms have different chokepoints. Chile exports 79% of the world's traded lithium carbonate
+(China takes 88% of its carbonate imports from Chile), while China exports 74% of the hydroxide, the
+refined form cathode makers use: the mined-and-converted stage and the refined stage sit in different
+countries, the kind of cross-stage structure the published multi-stage cascade work is built to
+capture. On the six-digit codes both networks hold together only once countries can lose more than
+60% of their trade; with the four-digit codes, which dilute lithium with other chemicals, the same
+switch appeared near 30%. This is the same
+"robust-yet-fragile" shape reported for cobalt above, and it is also the same shape the 2024
+lithium paper (Ouyang, Liu, Chen, Wang, Sun, He, Liu, *Environ. Sci. Technol.* 58 (2024)
 22135-22147) reports for the lithium network specifically: robust to random shocks, fragile to a
-targeted one at the right node. The concentration finding from earlier in this README (China's
-lithium carbonate imports 87% from Chile) is exactly the single-supplier dependency this cascade
-result explains mechanically: Chile is not just concentrated, it is a node whose removal the network
-cannot structurally absorb below a fairly high failure threshold.
+targeted one at the right node. Chile's position is exactly the single-supplier dependency this
+cascade explains mechanically: it is not just concentrated, it is a node whose removal the network
+cannot structurally absorb below a high failure threshold.
 
 ```
 src/shock_propagation.py   the cascade, systemic fragility, and avalanche network

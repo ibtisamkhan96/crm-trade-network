@@ -1,6 +1,6 @@
 """Cascading-failure shock propagation on the real trade network.
 
-Wu Chen's group (Ouyang, Liu, Liu, Chen, Wang, Pang, He, Liu, "Systemic risks and
+Ouyang et al. (Ouyang, Liu, Liu, Chen, Wang, Pang, He, Liu, "Systemic risks and
 cascading dynamics in the global cobalt supply chain," Environ. Sci. Ecotechnol. 29
 (2026) 100654) run a linear threshold cascade across six real cobalt life-cycle stages
 (mining, refining, manufacturing, use, waste, recycling), 1998-2019: a shock at one
@@ -31,7 +31,7 @@ def simulate_cascade(G: nx.DiGraph, source: str, beta: float = 0.2) -> dict:
     A live country collapses once the trade value it has already lost, because a
     partner it bought from or sold to has already collapsed, exceeds `beta` times its
     own total trade (imports plus exports in this commodity). `beta` plays the role of
-    Wu Chen's failure threshold Omega: a lower beta means a more fragile network, since
+    the failure threshold Omega in Ouyang et al.: a lower beta means a more fragile network, since
     countries tolerate less disruption before failing themselves.
     """
     if source not in G:
@@ -86,13 +86,13 @@ def systemic_fragility(G: nx.DiGraph, betas=(0.4, 0.3, 0.2, 0.15, 0.1, 0.05)) ->
     """For every country as a shock source, the largest beta tried that still produces
     an avalanche covering at least 10% of the rest of the network.
 
-    Wu Chen's own systemic fragility is the critical failure threshold at which a
+    Ouyang et al. define systemic fragility as the critical failure threshold at which a
     node's avalanche undergoes a phase transition, found by sweeping Omega
     continuously. This approximates the same idea over a fixed, coarser grid, honestly
     less precise than a continuous sweep, but real and cheaply re-runnable. A higher
     critical_beta means a shock from that country collapses a large share of the
     network even when other countries are relatively tolerant of disruption, i.e. that
-    country is more systemically fragile, in Wu Chen's own sense of the term.
+    country is more systemically fragile, in Ouyang et al.'s sense of the term.
     """
     rows = []
     for n in G.nodes():
@@ -112,7 +112,7 @@ def systemic_fragility(G: nx.DiGraph, betas=(0.4, 0.3, 0.2, 0.15, 0.1, 0.05)) ->
 
 def avalanche_network(G: nx.DiGraph, beta: float = 0.2) -> nx.DiGraph:
     """Run a shock from every country in turn: an edge source -> n means a shock
-    starting at `source` collapses `n`. This is where Wu Chen's "denser than the
+    starting at `source` collapses `n`. This is where Ouyang et al.'s "denser than the
     underlying supply chain" finding comes from, comparing this network's density
     against the real trade network's own density.
     """
@@ -133,9 +133,9 @@ if __name__ == "__main__":
     out.mkdir(parents=True, exist_ok=True)
 
     # Rare earth compounds (Myanmar's single-supplier finding), cobalt mattes (the
-    # material Wu Chen's 2026 cascade paper covers), and both lithium codes (the
-    # material her 2024 network-resilience paper covers): the headline cases.
-    for cmd in ["2846", "8105", "2836", "2825"]:
+    # material of the 2026 cobalt cascade paper), and both six-digit lithium codes (the material
+    # of the 2024 lithium network paper): the headline cases.
+    for cmd in ["2846", "8105", "283691", "282520"]:
         G = build_graph(edges, cmd)
         if G.number_of_nodes() < 10:
             continue

@@ -28,6 +28,10 @@ COMMODITIES = {
     "2846": "Rare earth compounds",
     "2836": "Carbonates (incl. lithium carbonate)",
     "2825": "Metal oxides and hydroxides (incl. lithium hydroxide)",
+    # The six-digit lithium codes: the four-digit ones above are dominated by other chemicals
+    # (HS 2836 by weight is mostly soda ash), so these isolate lithium itself.
+    "283691": "Lithium carbonates",
+    "282520": "Lithium oxide and hydroxide",
     "8105": "Cobalt mattes and articles",
     "2504": "Natural graphite",
     "7502": "Unwrought nickel",
@@ -53,10 +57,15 @@ def _cache_path(reporter: int, cmd: str, flow: str, year: int) -> pathlib.Path:
     return CACHE / f"{year}_{cmd}_{flow}_{reporter}.json"
 
 
-def fetch(reporter: int, cmd: str, flow: str, year: int, retries: int = 3) -> list[dict]:
-    """One reporter, one commodity, one direction, all partners. Cached."""
+def fetch(reporter: int, cmd: str, flow: str, year: int, retries: int = 3, force: bool = False) -> list[dict]:
+    """One reporter, one commodity, one direction, all partners. Cached.
+
+    force=True skips the cache check and always hits the live API, overwriting
+    whatever was previously cached. Without it, a cache hit never touches the
+    network at all, by design, the whole point of the cache is to not re-ask a
+    rate-limited API for something already answered."""
     path = _cache_path(reporter, cmd, flow, year)
-    if path.exists():
+    if path.exists() and not force:
         return json.loads(path.read_text(encoding="utf-8"))
 
     params = {
@@ -83,6 +92,29 @@ def fetch(reporter: int, cmd: str, flow: str, year: int, retries: int = 3) -> li
             time.sleep(wait)
     print(f"    GAVE UP: reporter={reporter} cmd={cmd} flow={flow}", flush=True)
     return []
+
+
+def ensure_cached(year: int, cmd: str, flows: tuple[str, ...] = ("M", "X"),
+                   force: bool = False, progress=None) -> int:
+    """Make sure every (reporter, flow) combination for this commodity and
+    year is backed by a real response, not an assumption. Without force,
+    this only fills in gaps, anything already on disk stays untouched.
+    With force, every single one is re-asked of the live API right now,
+    so a caller can prove the data is current rather than a replayed
+    snapshot from whenever fetch_all() last ran.
+
+    Returns the number of live HTTP calls actually made."""
+    made = 0
+    jobs = [(r, f) for f in flows for r in REPORTERS]
+    for i, (rep, flow) in enumerate(jobs, 1):
+        was_cached = _cache_path(rep, cmd, flow, year).exists()
+        fetch(rep, cmd, flow, year, force=force)
+        if force or not was_cached:
+            made += 1
+            time.sleep(PAUSE_SECONDS)
+        if progress is not None:
+            progress(i, len(jobs), REPORTERS[rep], flow)
+    return made
 
 
 def fetch_all(year: int = 2023, flows: tuple[str, ...] = ("M",)) -> int:
