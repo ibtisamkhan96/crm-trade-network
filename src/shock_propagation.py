@@ -36,7 +36,7 @@ def simulate_cascade(G: nx.DiGraph, source: str, beta: float = 0.2) -> dict:
     """
     if source not in G:
         return {"source": source, "rounds": 0, "collapsed": [], "avalanche_size": 0,
-                "avalanche_fraction": 0.0}
+                "avalanche_fraction": 0.0, "history": []}
 
     total_out = {n: sum(d["value"] for _, _, d in G.out_edges(n, data=True)) for n in G}
     total_in = {n: sum(d["value"] for _, _, d in G.in_edges(n, data=True)) for n in G}
@@ -46,6 +46,7 @@ def simulate_cascade(G: nx.DiGraph, source: str, beta: float = 0.2) -> dict:
     collapsed = {source}
     frontier = {source}
     rounds = 0
+    history = []   # the countries that failed in each round, in order, for replaying the cascade
 
     while frontier:
         rounds += 1
@@ -68,6 +69,7 @@ def simulate_cascade(G: nx.DiGraph, source: str, beta: float = 0.2) -> dict:
 
         if not newly_collapsed:
             break
+        history.append(sorted(newly_collapsed))
         collapsed |= newly_collapsed
         frontier = newly_collapsed
 
@@ -76,6 +78,7 @@ def simulate_cascade(G: nx.DiGraph, source: str, beta: float = 0.2) -> dict:
         "source": source, "rounds": rounds, "collapsed": sorted(collapsed - {source}),
         "avalanche_size": len(collapsed) - 1,
         "avalanche_fraction": (len(collapsed) - 1) / n_other if n_other > 0 else 0.0,
+        "history": history,
     }
 
 
